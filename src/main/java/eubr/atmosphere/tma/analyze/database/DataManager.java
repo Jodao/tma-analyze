@@ -136,7 +136,7 @@ public class DataManager {
 		return values;
 	}
 
-	public ResultSet saveScore(ResourceConsumptionScoreTalkConnect score) {
+	public int[] saveScore(ResourceConsumptionScoreTalkConnect score) {
 		// The score will be saved in the MetricData table
 
 		PreparedStatement ps;
@@ -148,9 +148,10 @@ public class DataManager {
 			ps.setLong(2, score.getValueTime());
 			ps.setDouble(3, score.getScore());
 			ps.setInt(4, score.getResourceId());
-		
+                        ps.addBatch();
+                        
 			DatabaseManager databaseManager = new DatabaseManager();
-			return databaseManager.executeQuery(ps);
+			return databaseManager.executeBatch(ps);
 		} catch (SQLException e) {
 			LOGGER.error("[ATMOSPHERE] Error when inserting a metric data in the database.", e);
 		}

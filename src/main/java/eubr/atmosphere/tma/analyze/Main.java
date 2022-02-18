@@ -61,11 +61,12 @@ public class Main {
 				Integer.parseInt(containers[0]));
                 
 		if (resourceConsumptionScore != null && resourceConsumptionScore.isValid()) {
-			dataManager.saveScore(resourceConsumptionScore);
+			resourceConsumptionScore.setValueTime(initialDate.getTimeInMillis() / 1000);
+                        dataManager.saveScore(resourceConsumptionScore);
                       
 			LOGGER.info("resourceScore: {}", resourceConsumptionScore.toString());
 			try {
-				kafkaManager.addItemKafka(resourceConsumptionScore); //score
+				kafkaManager.addItemKafka(resourceConsumptionScore);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} catch (ExecutionException e) {
