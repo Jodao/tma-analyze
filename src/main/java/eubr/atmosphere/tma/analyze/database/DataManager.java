@@ -39,12 +39,12 @@ public class DataManager {
 	public ResourceConsumptionScoreTalkConnect getDataResourceConsumption(String stringTime, int resource) {
 		String sql = "select descriptionId, resourceId,"
                         + "case descriptionId"
-                        + "when 3 then (select value from Data where descriptionId = 3 and "
+                        + " when 3 then (select value from Data where descriptionId = 3 and "
                         + "DATE_FORMAT(valueTime, \"%Y-%m-%d %H:%i:%s\") >= ? order by valueTime desc limit 1)"
-                        + "else avg(value) "
+                        + " else avg(value) "
                         + "end as 'value' from Data " 
                         + "where DATE_FORMAT(valueTime, \"%Y-%m-%d %H:%i:%s\") >= ? AND probeId = ?"
-                        + "group by descriptionId, resourceId;";
+                        + " group by descriptionId, resourceId;";
 		if (this.connection != null) {
 			return executeQueryResourceConsumption(stringTime, sql, resource);
 		} else {
