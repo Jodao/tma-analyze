@@ -39,7 +39,8 @@ public class DataManager {
 	public ResourceConsumptionScoreTalkConnect getDataResourceConsumption(String stringTime, int resource) {
 		String sql = "select descriptionId, resourceId,"
                         + "case descriptionId"
-                        + "when 3 then value"
+                        + "when 3 then (select value from Data where descriptionId = 3 and "
+                        + "DATE_FORMAT(valueTime, \"%Y-%m-%d %H:%i:%s\") >= ? order by valueTime desc limit 1)"
                         + "else avg(value) "
                         + "end as 'value' from Data " 
                         + "where DATE_FORMAT(valueTime, \"%Y-%m-%d %H:%i:%s\") >= ? AND probeId = ?"
@@ -57,7 +58,8 @@ public class DataManager {
 		try {
 			PreparedStatement ps = this.connection.prepareStatement(sql);
 			ps.setString(1, stringTime);
-			ps.setInt(2, probeIdResourceConsumption);
+                        ps.setString(2, stringTime);
+			ps.setInt(3, probeIdResourceConsumption);
 			ResultSet rs = DatabaseManager.executeQuery(ps);
 
 			if (rs.next()) {
