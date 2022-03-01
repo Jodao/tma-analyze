@@ -22,7 +22,6 @@ public class DataManager {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DataManager.class);
 	public final List<Integer> monitoredContainers = new ArrayList<Integer>();
 	public final Integer probeIdResourceConsumption;
-        public final Integer probeIdNumberContainers;
 
 	private static final String METRIC_DATA_INSERT_SQL =
 			"INSERT INTO MetricData(metricId, valueTime, value, resourceId) "
@@ -32,19 +31,19 @@ public class DataManager {
 		this.connection = DatabaseManager.getConnectionInstance();
 		this.probeIdResourceConsumption = Integer
 				.parseInt(PropertiesManager.getInstance().getProperty("probeIdResourceConsumption"));
-                this.probeIdNumberContainers = Integer
-				.parseInt(PropertiesManager.getInstance().getProperty("probeIdNumberContainers"));
-                
 		String[] containers = monitoredContainersString.split(",");
 		for (int i = 0; i < containers.length; i++)
 			this.monitoredContainers.add(Integer.parseInt(containers[i]));
 	}
 
 	public ResourceConsumptionScoreTalkConnect getDataResourceConsumption(String stringTime, int resource) {
-		String sql = "select descriptionId, resourceId, avg(value) as value from Data " + "where "
-				+ "DATE_FORMAT(valueTime, \"%Y-%m-%d %H:%i:%s\") >= ? AND" 
-                                + "(probeId = ? OR probeId = ?) "
-				+ "group by descriptionId, resourceId;";
+		String sql = "select descriptionId, resourceId,"
+                        + "case descriptionId"
+                        + "when 3 then value"
+                        + "else avg(value) "
+                        + "end as 'value' from Data " 
+                        + "where DATE_FORMAT(valueTime, \"%Y-%m-%d %H:%i:%s\") >= ? AND probeId = ?"
+                        + "group by descriptionId, resourceId;";
 		if (this.connection != null) {
 			return executeQueryResourceConsumption(stringTime, sql, resource);
 		} else {
@@ -59,7 +58,6 @@ public class DataManager {
 			PreparedStatement ps = this.connection.prepareStatement(sql);
 			ps.setString(1, stringTime);
 			ps.setInt(2, probeIdResourceConsumption);
-                        ps.setInt(3, probeIdNumberContainers);
 			ResultSet rs = DatabaseManager.executeQuery(ps);
 
 			if (rs.next()) {
