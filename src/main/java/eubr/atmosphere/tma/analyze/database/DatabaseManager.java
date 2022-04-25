@@ -11,15 +11,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 
 import java.util.HashMap;
-import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DatabaseManager {
-    private Statement statement = null;
     
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseManager.class);
     private static final String METRIC_DATA_INSERT_SQL =

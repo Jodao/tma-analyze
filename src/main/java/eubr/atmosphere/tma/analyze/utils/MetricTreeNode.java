@@ -1,5 +1,9 @@
 package eubr.atmosphere.tma.analyze.utils;
 
+import eubr.atmosphere.tma.analyze.utils.attributeAggregationOperators.AttributeAggregationOperator;
+import eubr.atmosphere.tma.analyze.utils.attributeAggregationOperators.Neutrality;
+import eubr.atmosphere.tma.analyze.utils.attributeAggregationOperators.Replaceability;
+import eubr.atmosphere.tma.analyze.utils.attributeAggregationOperators.Simultaneity;
 import java.util.ArrayList;
 
 /**
@@ -14,13 +18,13 @@ public class MetricTreeNode{
     private ArrayList<MetricTreeNode> childMetrics;
     private LeafAttributeInfo leafAttribute;
     private double metricData = 0.0;
-    private int attributeAggregationOperator;
+    private AttributeAggregationOperator attributeAggregationOperator;
 
     public MetricTreeNode() {
     }
     
     public MetricTreeNode(int metricId) {
-    this.metricId = metricId;
+        this.metricId = metricId;
     }
 
    
@@ -72,12 +76,26 @@ public class MetricTreeNode{
         this.metricData = metricData;
     }
 
-    public int getAttributeAggregationOperator() {
+    public AttributeAggregationOperator getAttributeAggregationOperator() {
         return attributeAggregationOperator;
     }
 
     public void setAttributeAggregationOperator(int attributeAggregationOperator) {
-        this.attributeAggregationOperator = attributeAggregationOperator;
+        AttributeAggregationOperator aao = null;
+        
+        switch(attributeAggregationOperator){
+            case 0: //NEUTRALITY
+                aao = new Neutrality();
+                break;
+            case 1: //SIMULTANEITY
+                aao = new Simultaneity();
+                break;
+            case 2: //REPLACEABILITY
+                aao = new Replaceability();
+                break;
+        }
+        
+        this.attributeAggregationOperator = aao;
     }
     
 }
