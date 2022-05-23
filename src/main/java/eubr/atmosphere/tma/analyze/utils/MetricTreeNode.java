@@ -5,6 +5,7 @@ import eubr.atmosphere.tma.analyze.utils.attributeAggregationOperators.Neutralit
 import eubr.atmosphere.tma.analyze.utils.attributeAggregationOperators.Replaceability;
 import eubr.atmosphere.tma.analyze.utils.attributeAggregationOperators.Simultaneity;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * This class represents a Quality Model's metrics tree node.
@@ -98,4 +99,20 @@ public class MetricTreeNode{
         this.attributeAggregationOperator = aao;
     }
     
+    public HashMap<Integer,Double> convertToScoreKafka(){
+        HashMap<Integer,Double> scoreToPublish = new HashMap() ;
+        //start by adding the current class node info and then its childs
+        scoreToPublish.put(metricId,metricData);
+        for(MetricTreeNode child : childMetrics){
+            addChildsToScoreKafka(scoreToPublish, child);
+        }
+        return scoreToPublish;
+    }
+    
+    private void addChildsToScoreKafka(HashMap<Integer,Double> scoreToPublish, MetricTreeNode node){
+        scoreToPublish.put(node.getMetricId(),node.getMetricData());
+        for(MetricTreeNode child : node.getChildMetrics()){
+            addChildsToScoreKafka(scoreToPublish, child);
+        }
+    }
 }

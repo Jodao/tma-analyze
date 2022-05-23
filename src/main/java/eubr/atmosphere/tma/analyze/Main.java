@@ -11,6 +11,7 @@ import eubr.atmosphere.tma.analyze.database.DatabaseManager;
 import eubr.atmosphere.tma.analyze.utils.MetricTreeNode;
 import java.util.HashMap;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutionException;
 
 public class Main {
 
@@ -23,9 +24,13 @@ public class Main {
     private static SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+    
+    private static KafkaManager kafkaManager;
 
     public static void main(String[] args) {
         DatabaseManager dbManager = new DatabaseManager();
+        kafkaManager = new KafkaManager();
+        
         Calendar startTimeStamp;
         Calendar endTimeStamp;
         
@@ -56,6 +61,16 @@ public class Main {
                         //apply weight on the root node
                         confProfileTree.setMetricData(confProfileTree.getMetricData() * confProfileTree.getWeight());
                         dbManager.saveMetricData(resourceId, confProfileTree, sdf.format(endTimeStamp.getTime()));
+                        try {
+                            kafkaManager.addItemKafka(
+                                    confProfileTree, 
+                                    resourceId, 
+                                    endTimeStamp.getTimeInMillis() / 1000
+                            );
+                        } catch (InterruptedException | ExecutionException ex) {
+                            LOGGER.error("There was a problem publishing on Kafka the score related to " + resourceId 
+                                + " applying configuration profile " + confProfileId + ".", ex);
+                        }
                     }
                     //If something went wrong provide some information.
                     else{
@@ -74,6 +89,7 @@ public class Main {
             } 
             catch (InterruptedException e) {
                 LOGGER.error("[ATMOSPHERE] Error when analyze was sleeping", e);
+                return;
             }
         }
     }
